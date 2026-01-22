@@ -35,7 +35,7 @@ if uploaded_file:
 
 # --- 시각화 1: 소득 수준별 교육 지출 비중 ---
 st.subheader("📊 1. 소득 수준별 정부 교육 지출 비중 (GDP 대비 %)")
-income_order = ['Low income', 'Lower middle income', 'Upper middle income', 'High income']
+income_order = ['Lower income', 'Lower middle income', 'Upper middle income', 'High income']
 df['Income_Group'] = pd.Categorical(df['Income_Group'], categories=income_order, ordered=True)
 df_sorted = df.sort_values('Income_Group')
 
@@ -49,7 +49,7 @@ st.plotly_chart(fig1, use_container_width=True)
 st.subheader("📚 2. 교육비 지출 상위 10개국의 단계별(초/중/고) 투자 비중")
 top10_exp = df.nlargest(10, 'Total_Exp_GDP')
 
-fig2 = px.bar(top10_exp, x='Country', y=['Primary', 'Secondary', 'Tertiary'],
+fig2 = px.bar(top10_exp, x='Country', y=['초등', '중등', '고등'],
              title="상위 10개국 교육 단계별 지출 구성 (%)",
              labels={'value': '지출 비중 (%)', 'variable': '교육 단계'},
              barmode='stack')
@@ -66,6 +66,24 @@ fig3 = px.bar(top10_duration, x='Years_of_Data', y='Country',
              color_continuous_scale='Viridis')
 fig3.update_layout(yaxis={'categoryorder':'total ascending'})
 st.plotly_chart(fig3, use_container_width=True)
+
+# 지도 시각화 예시 코드
+fig_map = px.choropleth(df, locations="Country", locationmode='country names',
+                        color="Total_Exp_GDP", hover_name="Country",
+                        title="전 세계 GDP 대비 교육비 지출 분포",
+                        color_continuous_scale=px.colors.sequential.Plasma)
+st.plotly_chart(fig_map, use_container_width=True)
+
+# 삼각 그래프 예시 코드
+fig_ternary = px.scatter_ternary(df, a="Primary", b="Secondary", c="Tertiary",
+                                 hover_name="Country", color="Income_Group",
+                                 title="교육 단계별 투자 집중도 (초 vs 중 vs 고)")
+st.plotly_chart(fig_ternary, use_container_width=True)
+
+# 선버스트 차트 예시 코드
+fig_sun = px.sunburst(df, path=['Income_Group', 'Country'], values='Total_Exp_GDP',
+                      title="소득 그룹별 국가 교육 지출 구조")
+st.plotly_chart(fig_sun, use_container_width=True)
 
 # 데이터 표 출력
 if st.checkbox("전체 데이터 보기"):
